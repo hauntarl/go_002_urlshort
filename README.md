@@ -18,11 +18,11 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 **Packages explored:**
 
 - fmt
-- net/http
-- gopkg.in/yaml.v2
+- net/http - to setup a basic http server and redirect requests
+- gopkg.in/yaml.v2 - to work with yaml data
+* flag package: to get yaml file name
+* os package: to open and close the file
 
 **Bonus:**
 
-- flag package: to get yaml file name
-- os package: to open and close the file
 - YamlFileHandler to parse file.yaml and return http.HandleFunc
