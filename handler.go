@@ -48,11 +48,12 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	return MapHandler(pathToUrls, fallback), nil
 }
 
-func buildMap(pathURLs []pathURL) (pathToUrls map[string]string) {
+func buildMap(pathURLs []pathURL) map[string]string {
+	pathToUrls := make(map[string]string)
 	for _, pu := range pathURLs {
 		pathToUrls[pu.Path] = pu.URL
 	}
-	return
+	return pathToUrls
 }
 
 func parseYaml(data []byte) ([]pathURL, error) {
