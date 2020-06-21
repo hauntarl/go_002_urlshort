@@ -2,6 +2,8 @@
 
 Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 
+Implementation of URL Shortener from gophercises, including the bonus section.
+
 **[Gophercises](https://courses.calhoun.io/courses/cor_gophercises)**  by Jon Calhoun
 
 **Run Commands:**
@@ -23,6 +25,13 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - /urlshort : <https://github.com/hauntarl/go_002_urlshort>
 - /urlshort_readme : https://github.com/hauntarl/go_002_urlshort/blob/master/README.md
 
+**Test Output:**
+
+        /                    : path not registered
+        /favicon.ico         : path not registered
+        /golang              : https://github.com/hauntarl/golang
+        /gophercises         : https://courses.calhoun.io/courses/cor_gophercises
+
 **Features:**
 
 - grouping packages using go.mod
@@ -31,6 +40,7 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - parsing json bytes and files
 - setting up a basic http server
 - redirecting requests using http
+- persisting the url mapping in database
 
 **Packages explored:**
 
@@ -39,5 +49,6 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - gopkg.in/yaml.v2 - to work with yaml data
 - flag - to get yaml/json file name
 - os - to open and close the file
-- io - to read from struct which satisfies io.Reader interface
+- io - to read from file whic satisfies io.Reader interface
 - encoding/json - to work with json data
+- github.com/boltdb/bolt - to store and retrieve urls for specified path

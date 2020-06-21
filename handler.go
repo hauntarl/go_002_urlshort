@@ -2,10 +2,12 @@ package urlshort
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
 
+	"github.com/boltdb/bolt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -15,14 +17,33 @@ import (
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(urlMap map[string]string, fallback http.Handler) http.HandlerFunc {
+func MapHandler(urlMap map[string]string, db *bolt.DB, fallback http.Handler) http.HandlerFunc {
+	if err := db.Update(func(tx *bolt.Tx) error {
+		for k, v := range urlMap {
+			err := tx.Bucket([]byte("DB")).Put([]byte(k), []byte(v))
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}); err != nil {
+		return fallback.ServeHTTP
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if dest, ok := urlMap[path]; ok {
-			http.Redirect(w, r, dest, http.StatusFound)
-			return
+		fmt.Printf("%-20s : ", path)
+		if err := db.View(func(tx *bolt.Tx) error {
+			url := tx.Bucket([]byte("DB")).Get([]byte(path))
+			if url == nil {
+				return fmt.Errorf("path not registered")
+			}
+			fmt.Println(string(url))
+			http.Redirect(w, r, string(url), http.StatusFound)
+			return nil
+		}); err != nil {
+			fmt.Println(err)
+			fallback.ServeHTTP(w, r)
 		}
-		fallback.ServeHTTP(w, r)
 	}
 }
 
@@ -47,13 +68,13 @@ type pathURL struct {
 //
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
-func YAMLHandler(yamlSlice []byte, fallback http.Handler) (http.HandlerFunc, error) {
+func YAMLHandler(yamlSlice []byte, db *bolt.DB, fallback http.Handler) (http.HandlerFunc, error) {
 	pathUrls, err := parseYaml(yamlSlice)
 	if err != nil {
 		return nil, err
 	}
 	urlMap := buildMap(pathUrls)
-	return MapHandler(urlMap, fallback), nil
+	return MapHandler(urlMap, db, fallback), nil
 }
 
 func parseYaml(yamlSlice []byte) ([]pathURL, error) {
@@ -67,7 +88,7 @@ func parseYaml(yamlSlice []byte) ([]pathURL, error) {
 }
 
 // YAMLFileHandler opens, reads and parses the given yaml file
-func YAMLFileHandler(yamlFileName string, fallback http.Handler) (http.HandlerFunc, error) {
+func YAMLFileHandler(yamlFileName string, db *bolt.DB, fallback http.Handler) (http.HandlerFunc, error) {
 	yamlFile, err := os.Open(yamlFileName)
 	if err != nil {
 		return nil, err
@@ -80,7 +101,7 @@ func YAMLFileHandler(yamlFileName string, fallback http.Handler) (http.HandlerFu
 	}
 
 	urlMap := buildMap(pathUrls)
-	return MapHandler(urlMap, fallback), nil
+	return MapHandler(urlMap, db, fallback), nil
 }
 
 func parseYamlFile(yamlFileName io.Reader) ([]pathURL, error) {
@@ -104,14 +125,14 @@ func buildMap(pathURLs []pathURL) map[string]string {
 }
 
 // JSONHandler parses data to map and returns http.HandleFunc
-func JSONHandler(jsonSlice []byte, fallback http.Handler) (http.HandlerFunc, error) {
+func JSONHandler(jsonSlice []byte, db *bolt.DB, fallback http.Handler) (http.HandlerFunc, error) {
 	pathUrls, err := parseJSON(jsonSlice)
 	if err != nil {
 		return nil, err
 	}
 
 	urlMap := buildMap(pathUrls)
-	return MapHandler(urlMap, fallback), nil
+	return MapHandler(urlMap, db, fallback), nil
 }
 
 func parseJSON(jsonSlice []byte) ([]pathURL, error) {
@@ -124,7 +145,7 @@ func parseJSON(jsonSlice []byte) ([]pathURL, error) {
 }
 
 // JSONFileHandler accepts a file name, opens, parses it and returns http.HandlerFunc
-func JSONFileHandler(jsonFileName string, fallback http.Handler) (http.HandlerFunc, error) {
+func JSONFileHandler(jsonFileName string, db *bolt.DB, fallback http.Handler) (http.HandlerFunc, error) {
 	jsonFile, err := os.Open(jsonFileName)
 	if err != nil {
 		return nil, err
@@ -137,7 +158,7 @@ func JSONFileHandler(jsonFileName string, fallback http.Handler) (http.HandlerFu
 	}
 
 	urlMap := buildMap(pathUrls)
-	return MapHandler(urlMap, fallback), nil
+	return MapHandler(urlMap, db, fallback), nil
 }
 
 func parseJSONFile(jsonFile io.Reader) ([]pathURL, error) {
