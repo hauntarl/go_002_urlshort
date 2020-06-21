@@ -10,7 +10,6 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 
 **Features:**
 
-- importing user packages
 - grouping packages using go.mod
 - setting up a basic http server
 - redirecting urls

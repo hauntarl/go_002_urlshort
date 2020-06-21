@@ -57,7 +57,7 @@ func buildMap(pathURLs []pathURL) (pathToUrls map[string]string) {
 
 func parseYaml(data []byte) ([]pathURL, error) {
 	var pathURLs []pathURL
-	err := yaml.Unmarshal(yml, &pathURLs)
+	err := yaml.Unmarshal(data, &pathURLs)
 	if err != nil {
 		return nil, err
 	}
