@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -8,6 +9,12 @@ import (
 )
 
 func main() {
+	yamlFlag := flag.String("yaml", "urls.yaml", `accepts a yaml file format: 
+- path: /path
+  url: url-redirect
+	`)
+	flag.Parse()
+
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
@@ -29,8 +36,14 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	yamlFileHandler, err := urlshort.YAMLFileHandler(*yamlFlag, yamlHandler)
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Starting the server on :8080")
-	http.ListenAndServe(":8080", yamlHandler)
+	http.ListenAndServe(":8080", yamlFileHandler)
 }
 
 func defaultMux() *http.ServeMux {

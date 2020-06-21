@@ -22,3 +22,7 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - gopkg.in/yaml.v2
 
 **Bonus:**
+
+- flag package: to get yaml file name
+- os package: to open and close the file
+- YamlFileHandler to parse file.yaml and return http.HandleFunc

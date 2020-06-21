@@ -1,7 +1,9 @@
 package urlshort
 
 import (
+	"io"
 	"net/http"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -12,15 +14,20 @@ import (
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.HandlerFunc {
+func MapHandler(urlMap map[string]string, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		if dest, ok := pathsToUrls[path]; ok {
+		if dest, ok := urlMap[path]; ok {
 			http.Redirect(w, r, dest, http.StatusFound)
 			return
 		}
 		fallback.ServeHTTP(w, r)
 	}
+}
+
+type pathURL struct {
+	Path string `yaml:"path,omitempty"`
+	URL  string `yaml:"url,omitempty"`
 }
 
 // YAMLHandler will parse the provided YAML and then return
@@ -39,33 +46,58 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 //
 // See MapHandler to create a similar http.HandlerFunc via
 // a mapping of paths to urls.
-func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
-	pathUrls, err := parseYaml(yml)
+func YAMLHandler(yamlSlice []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	pathUrls, err := parseYaml(yamlSlice)
 	if err != nil {
 		return nil, err
 	}
-	pathToUrls := buildMap(pathUrls)
-	return MapHandler(pathToUrls, fallback), nil
+	urlMap := buildMap(pathUrls)
+	return MapHandler(urlMap, fallback), nil
 }
 
-func buildMap(pathURLs []pathURL) map[string]string {
-	pathToUrls := make(map[string]string)
-	for _, pu := range pathURLs {
-		pathToUrls[pu.Path] = pu.URL
-	}
-	return pathToUrls
-}
-
-func parseYaml(data []byte) ([]pathURL, error) {
+func parseYaml(yamlSlice []byte) ([]pathURL, error) {
 	var pathURLs []pathURL
-	err := yaml.Unmarshal(data, &pathURLs)
+	// Unmarshal function accepts []byte and converts it to given structure
+	err := yaml.Unmarshal(yamlSlice, &pathURLs)
 	if err != nil {
 		return nil, err
 	}
 	return pathURLs, nil
 }
 
-type pathURL struct {
-	Path string `yaml:"path,omitempty"`
-	URL  string `yaml:"url,omitempty"`
+// YAMLFileHandler opens, reads and parses the given yaml file
+func YAMLFileHandler(yamlFileName string, fallback http.Handler) (http.HandlerFunc, error) {
+	yamlFile, err := os.Open(yamlFileName)
+	if err != nil {
+		return nil, err
+	}
+	defer yamlFile.Close()
+
+	pathUrls, err := parseYamlFile(yamlFile)
+	if err != nil {
+		return nil, err
+	}
+
+	urlMap := buildMap(pathUrls)
+	return MapHandler(urlMap, fallback), nil
+}
+
+func parseYamlFile(yamlFileName io.Reader) ([]pathURL, error) {
+	var pathUrls []pathURL
+	// yaml Decoder accepts io.Reader, read bytes from it and converts it to
+	// given data structure
+	err := yaml.NewDecoder(yamlFileName).Decode(&pathUrls)
+	if err != nil {
+		return nil, err
+	}
+	return pathUrls, nil
+}
+
+func buildMap(pathURLs []pathURL) map[string]string {
+	// iterates through parsed yaml and converts them to map[string]string
+	urlMap := make(map[string]string)
+	for _, pu := range pathURLs {
+		urlMap[pu.Path] = pu.URL
+	}
+	return urlMap
 }
