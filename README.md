@@ -4,13 +4,13 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 
 **[Gophercises](https://courses.calhoun.io/courses/cor_gophercises)**  by Jon Calhoun
 
-**Run Command:**
+**Run Commands:**
 
 - go run main\main.go
 - go run main\main.go -h (--help) (to get information regarding flags)
 - go run main\main.go --yaml file-name.yaml -json=file-name.json
 
-**Urls:**
+**Test Urls:**
 
 - /golang : <https://github.com/hauntarl/golang>
 - /gophercises : <https://courses.calhoun.io/courses/cor_gophercises>
@@ -26,15 +26,18 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 **Features:**
 
 - grouping packages using go.mod
+- using command-line flags
+- parsing yaml bytes and files
+- parsing json bytes and files
 - setting up a basic http server
-- redirecting urls
-- parsing yaml input format
-* YamlFileHandler to parse file.yaml and return http.HandleFunc
+- redirecting requests using http
 
 **Packages explored:**
 
 - fmt
 - net/http - to setup a basic http server and redirect requests
 - gopkg.in/yaml.v2 - to work with yaml data
-* flag package: to get yaml file name
-* os package: to open and close the file
+- flag - to get yaml/json file name
+- os - to open and close the file
+- io - to read from struct which satisfies io.Reader interface
+- encoding/json - to work with json data
