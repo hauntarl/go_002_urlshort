@@ -20,7 +20,7 @@ func main() {
 	}
 	handleFunc := getHandlerFunc(db)
 
-	fmt.Println("Starting the server on :8080")
+	fmt.Printf("\nStarting the server on localhost:8080\n\n")
 	http.ListenAndServe(":8080", handleFunc)
 }
 
@@ -32,6 +32,7 @@ func getHandlerFunc(db *bolt.DB) http.HandlerFunc {
 		"/golang":      "https://github.com/hauntarl/golang",
 		"/gophercises": "https://courses.calhoun.io/courses/cor_gophercises",
 	}
+	fmt.Println("\nFrom MapHandler...")
 	mapHandler := urlshort.MapHandler(pathsToUrls, db, mux)
 
 	// Build the YAMLHandler using the mapHandler as the fallback
@@ -85,6 +86,7 @@ func setFlags() {
 ]
 	`)
 	flag.Parse()
+	fmt.Printf("Flags set...\n\tyaml = %s\n\tjson = %s\n\n", *yamlFlag, *jsonFlag)
 }
 
 func setupDB() (*bolt.DB, error) {
@@ -101,12 +103,14 @@ func setupDB() (*bolt.DB, error) {
 	}); err != nil {
 		return nil, err
 	}
+	fmt.Print("Database initialized...\n\n")
 	return db, nil
 }
 
 func defaultMux() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", hello)
+	fmt.Println("Fallback http.HandleFunc created...")
 	return mux
 }
 

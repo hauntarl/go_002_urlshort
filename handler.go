@@ -24,6 +24,7 @@ func MapHandler(urlMap map[string]string, db *bolt.DB, fallback http.Handler) ht
 			if err != nil {
 				return err
 			}
+			fmt.Printf("\tInserted %s...\n", k)
 		}
 		return nil
 	}); err != nil {
@@ -74,6 +75,7 @@ func YAMLHandler(yamlSlice []byte, db *bolt.DB, fallback http.Handler) (http.Han
 		return nil, err
 	}
 	urlMap := buildMap(pathUrls)
+	fmt.Println("\nFrom YamlHandler...")
 	return MapHandler(urlMap, db, fallback), nil
 }
 
@@ -101,6 +103,7 @@ func YAMLFileHandler(yamlFileName string, db *bolt.DB, fallback http.Handler) (h
 	}
 
 	urlMap := buildMap(pathUrls)
+	fmt.Println("\nFrom YamlFileHandler...")
 	return MapHandler(urlMap, db, fallback), nil
 }
 
@@ -132,6 +135,7 @@ func JSONHandler(jsonSlice []byte, db *bolt.DB, fallback http.Handler) (http.Han
 	}
 
 	urlMap := buildMap(pathUrls)
+	fmt.Println("\nFrom JSONHandler...")
 	return MapHandler(urlMap, db, fallback), nil
 }
 
@@ -158,6 +162,7 @@ func JSONFileHandler(jsonFileName string, db *bolt.DB, fallback http.Handler) (h
 	}
 
 	urlMap := buildMap(pathUrls)
+	fmt.Println("\nFrom JSONFileHandler...")
 	return MapHandler(urlMap, db, fallback), nil
 }
 
