@@ -7,7 +7,21 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 **Run Command:**
 
 - go run main\main.go
-- go run main\main.go --yaml file-name.yaml
+- go run main\main.go -h (--help) (to get information regarding flags)
+- go run main\main.go --yaml file-name.yaml -json=file-name.json
+
+**Urls:**
+
+- /golang : <https://github.com/hauntarl/golang>
+- /gophercises : <https://courses.calhoun.io/courses/cor_gophercises>
+* /yaml : <https://pkg.go.dev/gopkg.in/yaml.v2?tab=doc>
+* /yaml_github : <https://github.com/go-yaml/yaml>
+- /haun_quiz : <https://github.com/hauntarl/go_001_quiz>
+- /haun_quiz_readme : <https://github.com/hauntarl/go_001_quiz/blob/master/README.md>
+* /json : <https://pkg.go.dev/encoding/json?tab=doc>
+* /json_intro :<https://blog.golang.org/json>
+- /haun_urlshort : <https://github.com/hauntarl/go_002_urlshort>
+- /haun_urlshort_readme : https://github.com/hauntarl/go_002_urlshort/blob/master/README.md
 
 **Features:**
 

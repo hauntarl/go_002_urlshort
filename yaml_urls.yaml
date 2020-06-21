@@ -1,0 +1,4 @@
+- path: /haun_quiz
+  url: https://github.com/hauntarl/go_001_quiz
+- path: /haun_quiz_readme
+  url: https://github.com/hauntarl/go_001_quiz/blob/master/README.md

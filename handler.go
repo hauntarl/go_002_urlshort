@@ -1,6 +1,7 @@
 package urlshort
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -26,8 +27,8 @@ func MapHandler(urlMap map[string]string, fallback http.Handler) http.HandlerFun
 }
 
 type pathURL struct {
-	Path string `yaml:"path,omitempty"`
-	URL  string `yaml:"url,omitempty"`
+	Path string `yaml:"path,omitempty" json:"path,omitempty"`
+	URL  string `yaml:"url,omitempty" json:"url,omitempty"`
 }
 
 // YAMLHandler will parse the provided YAML and then return
@@ -100,4 +101,50 @@ func buildMap(pathURLs []pathURL) map[string]string {
 		urlMap[pu.Path] = pu.URL
 	}
 	return urlMap
+}
+
+// JSONHandler parses data to map and returns http.HandleFunc
+func JSONHandler(jsonSlice []byte, fallback http.Handler) (http.HandlerFunc, error) {
+	pathUrls, err := parseJSON(jsonSlice)
+	if err != nil {
+		return nil, err
+	}
+
+	urlMap := buildMap(pathUrls)
+	return MapHandler(urlMap, fallback), nil
+}
+
+func parseJSON(jsonSlice []byte) ([]pathURL, error) {
+	var pathUrls []pathURL
+	err := json.Unmarshal(jsonSlice, &pathUrls)
+	if err != nil {
+		return nil, err
+	}
+	return pathUrls, nil
+}
+
+// JSONFileHandler accepts a file name, opens, parses it and returns http.HandlerFunc
+func JSONFileHandler(jsonFileName string, fallback http.Handler) (http.HandlerFunc, error) {
+	jsonFile, err := os.Open(jsonFileName)
+	if err != nil {
+		return nil, err
+	}
+	defer jsonFile.Close()
+
+	pathUrls, err := parseJSONFile(jsonFile)
+	if err != nil {
+		return nil, err
+	}
+
+	urlMap := buildMap(pathUrls)
+	return MapHandler(urlMap, fallback), nil
+}
+
+func parseJSONFile(jsonFile io.Reader) ([]pathURL, error) {
+	var pathUrls []pathURL
+	err := json.NewDecoder(jsonFile).Decode(&pathUrls)
+	if err != nil {
+		return nil, err
+	}
+	return pathUrls, nil
 }
