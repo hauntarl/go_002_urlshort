@@ -24,7 +24,7 @@ func MapHandler(urlMap map[string]string, db *bolt.DB, fallback http.Handler) ht
 			if err != nil {
 				return err
 			}
-			fmt.Printf("\tInserted %s...\n", k)
+			fmt.Printf("\tInserted %s\n", k)
 		}
 		return nil
 	}); err != nil {
