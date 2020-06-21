@@ -7,6 +7,7 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 **Run Command:**
 
 - go run main\main.go
+- go run main\main.go --yaml file-name.yaml
 
 **Features:**
 
@@ -14,6 +15,7 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - setting up a basic http server
 - redirecting urls
 - parsing yaml input format
+* YamlFileHandler to parse file.yaml and return http.HandleFunc
 
 **Packages explored:**
 
@@ -22,7 +24,3 @@ Code an http.Handler that forwards paths to other URLs (similar to Bitly).
 - gopkg.in/yaml.v2 - to work with yaml data
 * flag package: to get yaml file name
 * os package: to open and close the file
-
-**Bonus:**
-
-- YamlFileHandler to parse file.yaml and return http.HandleFunc
