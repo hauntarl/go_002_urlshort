@@ -15,11 +15,14 @@ var (
 	BucketName []byte
 )
 
+// CreateDB creates and opens a database at the given path. If the file does
+// not exist then it will be created automatically.
 func CreateDB(name string) (*bolt.DB, error) {
 	DBName = name
 	return bolt.Open(name, fs.ModePerm, nil)
 }
 
+// CreateBucket creates a new bucket if it doesn't already exist.
 func CreateBucket(db *bolt.DB, name string) error {
 	BucketName = []byte(name)
 	return db.Update(func(tx *bolt.Tx) error {
@@ -28,6 +31,8 @@ func CreateBucket(db *bolt.DB, name string) error {
 	})
 }
 
+// UpdateBucket writes data onto database at set BucketName,
+// data needs to be a key, value pair.
 func UpdateBucket(db *bolt.DB, data map[string]string) error {
 	return db.Update(func(tx *bolt.Tx) error {
 		for k, v := range data {
@@ -41,6 +46,8 @@ func UpdateBucket(db *bolt.DB, data map[string]string) error {
 	})
 }
 
+// ReadBucket tries to read associated value for the given key from database
+// in the set BucketName.
 func ReadBucket(db *bolt.DB, key string) (string, error) {
 	var (
 		url []byte
@@ -61,11 +68,15 @@ func ReadBucket(db *bolt.DB, key string) (string, error) {
 	return string(url), nil
 }
 
+// pathURL stores parsed data from an input file into Go understandable
+// structure, upon which further operations can be performed.
 type pathURL struct {
 	Path string `yaml:"path,omitempty" json:"path,omitempty"`
 	URL  string `yaml:"url,omitempty" json:"url,omitempty"`
 }
 
+// buildMap converts pathURL structure into key, value pair, which is the
+// accepted format by our database.
 func buildMap(input []pathURL) map[string]string {
 	data := make(map[string]string, len(input))
 	for _, item := range input {
@@ -74,6 +85,8 @@ func buildMap(input []pathURL) map[string]string {
 	return data
 }
 
+// ReadData parses the input string using the provided format unmarshaller,
+// then inserts the parsed elements into database.
 func ReadData(
 	input string, db *bolt.DB,
 	unmarshal func([]byte, interface{}) error) error {
@@ -84,13 +97,12 @@ func ReadData(
 	return UpdateBucket(db, buildMap(data))
 }
 
+// Decoder parses the input file and stores the parsed elements in given
+// interface
 type Decoder interface{ Decode(interface{}) error }
 
-func parseFile(file io.Reader, dec Decoder) (data []pathURL, err error) {
-	err = dec.Decode(&data)
-	return
-}
-
+// ReadFile parses the give file using the provided format decoder,
+// then inserts the parsed elements into database.
 func ReadFile(
 	name string, db *bolt.DB,
 	newDecoder func(io.Reader) Decoder) error {
@@ -100,7 +112,8 @@ func ReadFile(
 	}
 	defer file.Close()
 
-	data, err := parseFile(file, newDecoder(file))
+	var data []pathURL
+	err = newDecoder(file).Decode(&data)
 	if err != nil {
 		return err
 	}

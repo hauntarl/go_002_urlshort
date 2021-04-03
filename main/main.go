@@ -15,14 +15,12 @@ import (
 )
 
 const (
-	usageYAML = `
-accepts a yaml file format: 
+	usageYAML = `accepts a yaml file format: 
 - path: /path
   url: url-redirect
 ...
 `
-	usageJSON = `
-accepts a json file format:
+	usageJSON = `accepts a json file format:
 [
 	{"path": "/path", "url": "url-redirect"},
 	...
@@ -90,19 +88,17 @@ func insertData(db *bolt.DB) (err error) {
 	if err = boltdb.ReadData(dataYAML, db, yaml.Unmarshal); err != nil {
 		return
 	}
-	if err = boltdb.ReadFile(*flagYAML, db,
-		func(file io.Reader) boltdb.Decoder {
-			return yaml.NewDecoder(file)
-		}); err != nil {
-		return
-	}
 	if err = boltdb.ReadData(dataJSON, db, json.Unmarshal); err != nil {
 		return
 	}
+	if err = boltdb.ReadFile(*flagYAML, db,
+		func(file io.Reader) boltdb.Decoder { return yaml.NewDecoder(file) },
+	); err != nil {
+		return
+	}
 	if err = boltdb.ReadFile(*flagJSON, db,
-		func(file io.Reader) boltdb.Decoder {
-			return json.NewDecoder(file)
-		}); err != nil {
+		func(file io.Reader) boltdb.Decoder { return json.NewDecoder(file) },
+	); err != nil {
 		return
 	}
 	return

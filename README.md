@@ -39,7 +39,6 @@ Implementation of URL Shortener from gophercises, including the bonus section.
 D:\gophercises\url-short>go run main\main.go -h
 Usage of C:\Users\hauntarl\AppData\Local\Temp\go-build1740898174\b001\exe\main.exe:
   -json string
-
         accepts a json file format:
         [
                 {"path": "/path", "url": "url-redirect"},
@@ -47,7 +46,6 @@ Usage of C:\Users\hauntarl\AppData\Local\Temp\go-build1740898174\b001\exe\main.e
         ]
          (default "json_urls.json")
   -yaml string
-
         accepts a yaml file format:
         - path: /path
           url: url-redirect
