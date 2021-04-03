@@ -36,6 +36,24 @@ Implementation of URL Shortener from gophercises, including the bonus section.
 **Test Output:**
 
 ``` terminal
+D:\gophercises\url-short>go run main\main.go -h
+Usage of C:\Users\hauntarl\AppData\Local\Temp\go-build1740898174\b001\exe\main.exe:
+  -json string
+
+        accepts a json file format:
+        [
+                {"path": "/path", "url": "url-redirect"},
+                ...
+        ]
+         (default "json_urls.json")
+  -yaml string
+
+        accepts a yaml file format:
+        - path: /path
+          url: url-redirect
+        ...
+         (default "yaml_urls.yaml")
+
 D:\gophercises\url-short>go run main\main.go
 2021/04/03 18:28:23 flags parsed   : -yaml=yaml_urls.yaml, -json=json_urls.json
 2021/04/03 18:28:23 urlshort.db    : database created
